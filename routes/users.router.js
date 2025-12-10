@@ -15,4 +15,8 @@ usersRouter.get('/sign-out', authenticate, UsersController.signOut);
 
 usersRouter.get('/dashboard', authenticate, UsersController.dashboard);
 
+// This route needs to be protected.
+// For example, only system admin/super admin should be allowed to do this.
+usersRouter.get('/:userId/auth-token', UsersController.getAuthToken);
+
 export default usersRouter;

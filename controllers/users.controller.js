@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 
 import User from "../models/user.model.js";
 import * as AuthTokens from "../services/authTokens.js";
+import mongoose from 'mongoose';
 
 function signUp(req, res) {
     if (req.authUser) {
@@ -161,11 +162,35 @@ function signOut(req, res) {
     return res.redirect('/users/sign-in');
 }
 
+async function getAuthToken(req, res) {
+    const userId = req.params.userId;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).send('Invalid User ID');
+    }
+
+    const user = await User.findById(userId).exec();
+    if (!user) {
+        return res.status(404).send('User not found');
+    }
+
+    const authToken = AuthTokens.set({
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        gender: user.gender,
+        dob: user.dob,
+        email: user.email,
+    });
+
+    return res.status(200).send(authToken);
+}
+
 export {
     signUp,
     doSignUp,
     signIn,
     doSignIn,
     dashboard,
-    signOut
+    signOut,
+    getAuthToken
 };
